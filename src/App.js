@@ -78,6 +78,7 @@ const roundsData = [
 export default function App() {
   const [rounds, setRounds] = useState(roundsData);
   const [currentRound, setCurrentRound] = useState(1);
+  const [pointsTable, setPointsTable] = useState({});
   const [champion, setChampion] = useState(null);
 
   const roundsToShow = rounds.filter((r) => r.round === currentRound);
@@ -90,18 +91,22 @@ export default function App() {
   };
 
   const nextRound = () => {
-    if (currentRound < 10) {
-      setCurrentRound(currentRound + 1);
-    } else {
-      alert("Tai paskutinis roundas!");
-    }
+    if (currentRound < 10) setCurrentRound(currentRound + 1);
+    else alert("Tai paskutinis roundas!");
   };
 
   const calculateChampion = () => {
     const points = {};
     rounds.forEach((r) => {
-      if (r.winner) points[r.winner] = (points[r.winner] || 0) + 1;
+      if (r.winner) {
+        const team = r.winner.replace("1", ""); // D + D1 -> D
+        points[team] = (points[team] || 0) + 1;
+      }
     });
+
+    setPointsTable(points);
+
+    // Nugalėtojas
     let maxPoints = 0;
     let champ = null;
     for (let team in points) {
@@ -128,7 +133,30 @@ export default function App() {
         >
           Skaičiuoti nugalėtoją
         </button>
+
         {champion && <h2>Nugalėtojas: {champion}</h2>}
+
+        {Object.keys(pointsTable).length > 0 && (
+          <>
+            <h3>Taškų lentelė</h3>
+            <table className="table" style={{ margin: "0 auto", borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  <th>Komanda</th>
+                  <th>Taškai</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(pointsTable).map(([team, points]) => (
+                  <tr key={team}>
+                    <td style={{ fontWeight: 600 }}>{team}</td>
+                    <td>{points}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
 
         <h2>Round {currentRound}</h2>
         <table className="table" style={{ margin: "0 auto", borderCollapse: "collapse" }}>
@@ -158,6 +186,7 @@ export default function App() {
             ))}
           </tbody>
         </table>
+
         <button
           className="button"
           onClick={nextRound}
