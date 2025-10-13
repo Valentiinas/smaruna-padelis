@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "./index.css";
 
-// Visi raundai su komandomis (stipri: A-F, silpni: A1-F1)
 const roundsData = [
   { round: 1, team1: "A", team2: "B", winner: null },
   { round: 1, team1: "A1", team2: "B1", winner: null },
@@ -41,6 +40,7 @@ const roundsData = [
 
 export default function App() {
   const [rounds, setRounds] = useState(roundsData);
+  const [champion, setChampion] = useState(null);
 
   const handleWinner = (index, winner) => {
     const newRounds = [...rounds];
@@ -48,16 +48,36 @@ export default function App() {
     setRounds(newRounds);
   };
 
-  const calculatePoints = (team) => {
-    return rounds.filter((r) => r.winner === team).length;
+  const calculateChampion = () => {
+    const points = {};
+    rounds.forEach((r) => {
+      if (r.winner) {
+        points[r.winner] = (points[r.winner] || 0) + 1;
+      }
+    });
+
+    let maxPoints = 0;
+    let champ = null;
+    for (let team in points) {
+      if (points[team] > maxPoints) {
+        maxPoints = points[team];
+        champ = team;
+      }
+    }
+    setChampion(champ);
   };
 
-  const getTeamColor = (team) => (team.includes("1") ? "#34d399" : "#3b82f6"); // silpni žalia, stipri mėlyna
+  const getTeamColor = (team) => (team.includes("1") ? "#34d399" : "#3b82f6");
 
   return (
     <div>
       <header>Smarūna Padelis</header>
-      <main>
+      <main style={{ textAlign: "center" }}>
+        <button className="button" onClick={calculateChampion} style={{ margin: "1rem" }}>
+          Skaičiuoti nugalėtoją
+        </button>
+        {champion && <h2>Nugalėtojas: {champion}</h2>}
+
         <table className="table">
           <thead>
             <tr>
@@ -66,19 +86,14 @@ export default function App() {
               <th>Komanda 2</th>
               <th>Winner</th>
               <th>Veiksmai</th>
-              <th>Taškai</th>
             </tr>
           </thead>
           <tbody>
             {rounds.map((r, i) => (
               <tr key={i}>
                 <td>{r.round}</td>
-                <td style={{ color: getTeamColor(r.team1), fontWeight: "600" }}>
-                  {r.team1}
-                </td>
-                <td style={{ color: getTeamColor(r.team2), fontWeight: "600" }}>
-                  {r.team2}
-                </td>
+                <td style={{ color: getTeamColor(r.team1), fontWeight: "600" }}>{r.team1}</td>
+                <td style={{ color: getTeamColor(r.team2), fontWeight: "600" }}>{r.team2}</td>
                 <td>{r.winner || "-"}</td>
                 <td>
                   <button className="button" onClick={() => handleWinner(i, r.team1)}>
@@ -87,9 +102,6 @@ export default function App() {
                   <button className="button" onClick={() => handleWinner(i, r.team2)}>
                     {r.team2} Laimėjo
                   </button>
-                </td>
-                <td>
-                  {calculatePoints(r.team1)} - {calculatePoints(r.team2)}
                 </td>
               </tr>
             ))}
