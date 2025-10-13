@@ -81,18 +81,12 @@ export default function App() {
   const [champion, setChampion] = useState(null);
 
   const [teamsPlayers, setTeamsPlayers] = useState({
-    A: ["", ""],
-    A1: ["", ""],
-    B: ["", ""],
-    B1: ["", ""],
-    C: ["", ""],
-    C1: ["", ""],
-    D: ["", ""],
-    D1: ["", ""],
-    E: ["", ""],
-    E1: ["", ""],
-    F: ["", ""],
-    F1: ["", ""],
+    A: ["", ""], A1: ["", ""],
+    B: ["", ""], B1: ["", ""],
+    C: ["", ""], C1: ["", ""],
+    D: ["", ""], D1: ["", ""],
+    E: ["", ""], E1: ["", ""],
+    F: ["", ""], F1: ["", ""],
   });
 
   const handlePlayersChange = (team, index, value) => {
@@ -123,12 +117,10 @@ export default function App() {
         points[team] = (points[team] || 0) + 1;
       }
     });
-
     const sortedPoints = Object.fromEntries(
       Object.entries(points).sort(([, a], [, b]) => b - a)
     );
     setPointsTable(sortedPoints);
-
     const [first] = Object.keys(sortedPoints);
     setChampion(first);
   };
@@ -183,58 +175,4 @@ export default function App() {
           <>
             <h3>Taškų lentelė (rikiuota nuo daugiausiai taškų)</h3>
             <table className="table" style={{ margin: "0 auto", borderCollapse: "collapse" }}>
-              <thead>
-                <tr>
-                  <th>Komanda</th>
-                  <th>Taškai</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(pointsTable).map(([team, points], index) => (
-                  <tr key={team} style={{ fontWeight: index === 0 ? 700 : 500 }}>
-                    <td>{team}</td>
-                    <td>{points}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </>
-        )}
-
-        <h2>Round {currentRound}</h2>
-        <table className="table" style={{ margin: "0 auto", borderCollapse: "collapse" }}>
-          <thead>
-            <tr>
-              <th>Komanda 1</th>
-              <th>Komanda 2</th>
-              <th>Winner</th>
-              <th>Veiksmai</th>
-            </tr>
-          </thead>
-          <tbody>
-            {roundsToShow.map((r, i) => (
-              <tr key={i} style={{ borderBottom: "1px solid #ddd" }}>
-                <td style={{ color: getTeamColor(r.team1), fontWeight: 600 }}>
-                  {getPlayerNames(r.team1)}
-                </td>
-                <td style={{ color: getTeamColor(r.team2), fontWeight: 600 }}>
-                  {getPlayerNames(r.team2)}
-                </td>
-                <td>{r.winner ? getPlayerNames(r.winner) : "-"}</td>
-                <td>
-                  <button className="button" onClick={() => handleWinner(i, r.team1)}>
-                    Laimėjo
-                  </button>{" "}
-                  <button className="button" onClick={() => handleWinner(i, r.team2)}>
-                    Laimėjo
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <button
-          className="button"
-          onClick={nextRound}
-          style={{ marginTop: "1rem", padding: "0.5rem 
+             
