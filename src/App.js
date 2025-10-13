@@ -1,14 +1,83 @@
 import React, { useState } from "react";
 import "./index.css";
 
+// Visų roundų duomenys
 const initialRoundsData = [
+  // Round 1
   { round: 1, team1: "A", team2: "B", winner: null },
   { round: 1, team1: "A1", team2: "B1", winner: null },
   { round: 1, team1: "C", team2: "D", winner: null },
   { round: 1, team1: "C1", team2: "D1", winner: null },
   { round: 1, team1: "E", team2: "F", winner: null },
   { round: 1, team1: "E1", team2: "F1", winner: null },
-  // ... pridėkite likusius rounds 2-10 kaip ankstesniame kode
+
+  // Round 2
+  { round: 2, team1: "A", team2: "C", winner: null },
+  { round: 2, team1: "A1", team2: "C1", winner: null },
+  { round: 2, team1: "B", team2: "E", winner: null },
+  { round: 2, team1: "B1", team2: "E1", winner: null },
+  { round: 2, team1: "D", team2: "F", winner: null },
+  { round: 2, team1: "D1", team2: "F1", winner: null },
+
+  // Round 3
+  { round: 3, team1: "A", team2: "D", winner: null },
+  { round: 3, team1: "A1", team2: "D1", winner: null },
+  { round: 3, team1: "B", team2: "F", winner: null },
+  { round: 3, team1: "B1", team2: "F1", winner: null },
+  { round: 3, team1: "C", team2: "E", winner: null },
+  { round: 3, team1: "C1", team2: "E1", winner: null },
+
+  // Round 4
+  { round: 4, team1: "A", team2: "E", winner: null },
+  { round: 4, team1: "A1", team2: "E1", winner: null },
+  { round: 4, team1: "B", team2: "D", winner: null },
+  { round: 4, team1: "B1", team2: "D1", winner: null },
+  { round: 4, team1: "C", team2: "F", winner: null },
+  { round: 4, team1: "C1", team2: "F1", winner: null },
+
+  // Round 5
+  { round: 5, team1: "A", team2: "F", winner: null },
+  { round: 5, team1: "A1", team2: "F1", winner: null },
+  { round: 5, team1: "B", team2: "C", winner: null },
+  { round: 5, team1: "B1", team2: "C1", winner: null },
+  { round: 5, team1: "D", team2: "E", winner: null },
+  { round: 5, team1: "D1", team2: "E1", winner: null },
+
+  // Round 6–10 (Vyrai/Moterų)
+  { round: 6, team1: "A", team2: "B", winner: null },
+  { round: 6, team1: "A1", team2: "B1", winner: null },
+  { round: 6, team1: "C", team2: "D", winner: null },
+  { round: 6, team1: "C1", team2: "D1", winner: null },
+  { round: 6, team1: "E", team2: "F", winner: null },
+  { round: 6, team1: "E1", team2: "F1", winner: null },
+
+  { round: 7, team1: "A", team2: "C", winner: null },
+  { round: 7, team1: "A1", team2: "C1", winner: null },
+  { round: 7, team1: "B", team2: "E", winner: null },
+  { round: 7, team1: "B1", team2: "E1", winner: null },
+  { round: 7, team1: "D", team2: "F", winner: null },
+  { round: 7, team1: "D1", team2: "F1", winner: null },
+
+  { round: 8, team1: "A", team2: "D", winner: null },
+  { round: 8, team1: "A1", team2: "D1", winner: null },
+  { round: 8, team1: "B", team2: "F", winner: null },
+  { round: 8, team1: "B1", team2: "F1", winner: null },
+  { round: 8, team1: "C", team2: "E", winner: null },
+  { round: 8, team1: "C1", team2: "E1", winner: null },
+
+  { round: 9, team1: "A", team2: "E", winner: null },
+  { round: 9, team1: "A1", team2: "E1", winner: null },
+  { round: 9, team1: "B", team2: "D", winner: null },
+  { round: 9, team1: "B1", team2: "D1", winner: null },
+  { round: 9, team1: "C", team2: "F", winner: null },
+  { round: 9, team1: "C1", team2: "F1", winner: null },
+
+  { round: 10, team1: "A", team2: "F", winner: null },
+  { round: 10, team1: "A1", team2: "F1", winner: null },
+  { round: 10, team1: "B", team2: "C", winner: null },
+  { round: 10, team1: "B1", team2: "C1", winner: null },
+  { round: 10, team1: "D", team2: "E", winner: null },
+  { round: 10, team1: "D1", team2: "E1", winner: null },
 ];
 
 export default function App() {
@@ -17,18 +86,19 @@ export default function App() {
   const [pointsTable, setPointsTable] = useState({});
   const [champion, setChampion] = useState(null);
 
-  // Žaidėjų sąrašai komandoms
   const [teamsPlayers, setTeamsPlayers] = useState({
-    A: "",
-    B: "",
-    C: "",
-    D: "",
-    E: "",
-    F: "",
+    A: ["", ""],
+    B: ["", ""],
+    C: ["", ""],
+    D: ["", ""],
+    E: ["", ""],
+    F: ["", ""],
   });
 
-  const handlePlayersChange = (team, value) => {
-    setTeamsPlayers({ ...teamsPlayers, [team]: value });
+  const handlePlayersChange = (team, index, value) => {
+    const newTeam = [...teamsPlayers[team]];
+    newTeam[index] = value;
+    setTeamsPlayers({ ...teamsPlayers, [team]: newTeam });
   };
 
   const roundsToShow = rounds.filter((r) => r.round === currentRound);
@@ -54,26 +124,22 @@ export default function App() {
       }
     });
 
-    setPointsTable(points);
-
-    // Rikiavimas pagal taškus
     const sortedPoints = Object.fromEntries(
       Object.entries(points).sort(([, a], [, b]) => b - a)
     );
     setPointsTable(sortedPoints);
 
-    // Nugalėtojas
     const [first] = Object.keys(sortedPoints);
     setChampion(first);
   };
 
-  const getTeamColor = (team) => (team.includes("1") ? "#34d399" : "#3b82f6");
-
-  // Funkcija, kad parodytų tikrus vardus
   const getPlayerNames = (team) => {
     const mainTeam = team.replace("1", "");
-    return teamsPlayers[mainTeam] || team;
+    const players = teamsPlayers[mainTeam];
+    return players.filter(Boolean).join(" + ") || mainTeam;
   };
+
+  const getTeamColor = (team) => (team.includes("1") ? "#34d399" : "#3b82f6");
 
   return (
     <div>
@@ -89,9 +155,16 @@ export default function App() {
               Komanda {team}:{" "}
               <input
                 type="text"
-                placeholder="Tomas, Marius"
-                value={teamsPlayers[team]}
-                onChange={(e) => handlePlayersChange(team, e.target.value)}
+                placeholder="Žaidėjas1"
+                value={teamsPlayers[team][0]}
+                onChange={(e) => handlePlayersChange(team, 0, e.target.value)}
+              />{" "}
+              /{" "}
+              <input
+                type="text"
+                placeholder="Žaidėjas2"
+                value={teamsPlayers[team][1]}
+                onChange={(e) => handlePlayersChange(team, 1, e.target.value)}
               />
             </label>
           </div>
@@ -109,7 +182,7 @@ export default function App() {
 
         {Object.keys(pointsTable).length > 0 && (
           <>
-            <h3>Taškų lentelė (rikiuota pagal taškus)</h3>
+            <h3>Taškų lentelė (rikiuota nuo daugiausiai taškų)</h3>
             <table className="table" style={{ margin: "0 auto", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
