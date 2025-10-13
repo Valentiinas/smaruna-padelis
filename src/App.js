@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./index.css";
 
 const initialRoundsData = [
-  // ROUND 1
+  // Panašiai kaip ankstesnis kodas, visi 10 roundų su team1/team2
   { round: 1, team1: "A", team2: "B", winner: null },
   { round: 1, team1: "A1", team2: "B1", winner: null },
   { round: 1, team1: "C", team2: "D", winner: null },
@@ -37,7 +37,7 @@ const initialRoundsData = [
   { round: 5, team1: "B1", team2: "C1", winner: null },
   { round: 5, team1: "D", team2: "E", winner: null },
   { round: 5, team1: "D1", team2: "E1", winner: null },
-  // ROUND 6 (vyrai vs vyrai / moterys vs moterys)
+  // ROUND 6
   { round: 6, team1: "A", team2: "B", winner: null },
   { round: 6, team1: "A1", team2: "B1", winner: null },
   { round: 6, team1: "C", team2: "D", winner: null },
@@ -133,7 +133,7 @@ export default function App() {
   const getTeamColor = (team) => (team.includes("1") ? "#34d399" : "#3b82f6");
 
   return (
-    <div>
+    <div style={{ fontFamily: "Arial, sans-serif" }}>
       <header style={{ padding: "1rem", fontSize: "2rem", background: "#f3f4f6" }}>
         Smarūna Padelis
       </header>
@@ -162,7 +162,6 @@ export default function App() {
         ))}
 
         <button
-          className="button"
           onClick={calculateChampion}
           style={{ margin: "1rem", padding: "0.5rem 1rem" }}
         >
@@ -174,5 +173,63 @@ export default function App() {
         {Object.keys(pointsTable).length > 0 && (
           <>
             <h3>Taškų lentelė (rikiuota nuo daugiausiai taškų)</h3>
-            <table className="table" style={{ margin: "0 auto", borderCollapse: "collapse" }}>
-             
+            <table style={{ margin: "0 auto", borderCollapse: "collapse", minWidth: "200px" }}>
+              <thead>
+                <tr>
+                  <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>Komanda</th>
+                  <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>Taškai</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(pointsTable).map(([team, points], index) => (
+                  <tr key={team}>
+                    <td style={{ border: "1px solid #ddd", padding: "0.5rem" }}>{team}</td>
+                    <td style={{ border: "1px solid #ddd", padding: "0.5rem" }}>{points}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
+
+        <h2>Round {currentRound}</h2>
+        <table style={{ margin: "0 auto", borderCollapse: "collapse", minWidth: "300px" }}>
+          <thead>
+            <tr>
+              <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>Komanda 1</th>
+              <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>Komanda 2</th>
+              <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>Winner</th>
+              <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>Veiksmai</th>
+            </tr>
+          </thead>
+          <tbody>
+            {roundsToShow.map((r, i) => (
+              <tr key={i}>
+                <td style={{ border: "1px solid #ddd", padding: "0.5rem", color: getTeamColor(r.team1), fontWeight: 600 }}>
+                  {getPlayerNames(r.team1)}
+                </td>
+                <td style={{ border: "1px solid #ddd", padding: "0.5rem", color: getTeamColor(r.team2), fontWeight: 600 }}>
+                  {getPlayerNames(r.team2)}
+                </td>
+                <td style={{ border: "1px solid #ddd", padding: "0.5rem" }}>
+                  {r.winner ? getPlayerNames(r.winner) : "-"}
+                </td>
+                <td style={{ border: "1px solid #ddd", padding: "0.5rem" }}>
+                  <button onClick={() => handleWinner(i, r.team1)}>Laimėjo</button>{" "}
+                  <button onClick={() => handleWinner(i, r.team2)}>Laimėjo</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <button
+          onClick={nextRound}
+          style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}
+        >
+          Pereiti į kitą round
+        </button>
+      </main>
+    </div>
+  );
+}
