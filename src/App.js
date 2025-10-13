@@ -1,77 +1,71 @@
 import React, { useState } from "react";
 import "./index.css";
 
-// Visų roundų duomenys
 const initialRoundsData = [
-  // Round 1
+  // ROUND 1
   { round: 1, team1: "A", team2: "B", winner: null },
   { round: 1, team1: "A1", team2: "B1", winner: null },
   { round: 1, team1: "C", team2: "D", winner: null },
   { round: 1, team1: "C1", team2: "D1", winner: null },
   { round: 1, team1: "E", team2: "F", winner: null },
   { round: 1, team1: "E1", team2: "F1", winner: null },
-
-  // Round 2
+  // ROUND 2
   { round: 2, team1: "A", team2: "C", winner: null },
   { round: 2, team1: "A1", team2: "C1", winner: null },
   { round: 2, team1: "B", team2: "E", winner: null },
   { round: 2, team1: "B1", team2: "E1", winner: null },
   { round: 2, team1: "D", team2: "F", winner: null },
   { round: 2, team1: "D1", team2: "F1", winner: null },
-
-  // Round 3
+  // ROUND 3
   { round: 3, team1: "A", team2: "D", winner: null },
   { round: 3, team1: "A1", team2: "D1", winner: null },
   { round: 3, team1: "B", team2: "F", winner: null },
   { round: 3, team1: "B1", team2: "F1", winner: null },
   { round: 3, team1: "C", team2: "E", winner: null },
   { round: 3, team1: "C1", team2: "E1", winner: null },
-
-  // Round 4
+  // ROUND 4
   { round: 4, team1: "A", team2: "E", winner: null },
   { round: 4, team1: "A1", team2: "E1", winner: null },
   { round: 4, team1: "B", team2: "D", winner: null },
   { round: 4, team1: "B1", team2: "D1", winner: null },
   { round: 4, team1: "C", team2: "F", winner: null },
   { round: 4, team1: "C1", team2: "F1", winner: null },
-
-  // Round 5
+  // ROUND 5
   { round: 5, team1: "A", team2: "F", winner: null },
   { round: 5, team1: "A1", team2: "F1", winner: null },
   { round: 5, team1: "B", team2: "C", winner: null },
   { round: 5, team1: "B1", team2: "C1", winner: null },
   { round: 5, team1: "D", team2: "E", winner: null },
   { round: 5, team1: "D1", team2: "E1", winner: null },
-
-  // Round 6–10 (Vyrai/Moterų)
+  // ROUND 6 (vyrai vs vyrai / moterys vs moterys)
   { round: 6, team1: "A", team2: "B", winner: null },
   { round: 6, team1: "A1", team2: "B1", winner: null },
   { round: 6, team1: "C", team2: "D", winner: null },
   { round: 6, team1: "C1", team2: "D1", winner: null },
   { round: 6, team1: "E", team2: "F", winner: null },
   { round: 6, team1: "E1", team2: "F1", winner: null },
-
+  // ROUND 7
   { round: 7, team1: "A", team2: "C", winner: null },
   { round: 7, team1: "A1", team2: "C1", winner: null },
   { round: 7, team1: "B", team2: "E", winner: null },
   { round: 7, team1: "B1", team2: "E1", winner: null },
   { round: 7, team1: "D", team2: "F", winner: null },
   { round: 7, team1: "D1", team2: "F1", winner: null },
-
+  // ROUND 8
   { round: 8, team1: "A", team2: "D", winner: null },
   { round: 8, team1: "A1", team2: "D1", winner: null },
   { round: 8, team1: "B", team2: "F", winner: null },
   { round: 8, team1: "B1", team2: "F1", winner: null },
   { round: 8, team1: "C", team2: "E", winner: null },
   { round: 8, team1: "C1", team2: "E1", winner: null },
-
+  // ROUND 9
   { round: 9, team1: "A", team2: "E", winner: null },
   { round: 9, team1: "A1", team2: "E1", winner: null },
   { round: 9, team1: "B", team2: "D", winner: null },
   { round: 9, team1: "B1", team2: "D1", winner: null },
   { round: 9, team1: "C", team2: "F", winner: null },
   { round: 9, team1: "C1", team2: "F1", winner: null },
-
+  // ROUND 10
   { round: 10, team1: "A", team2: "F", winner: null },
   { round: 10, team1: "A1", team2: "F1", winner: null },
   { round: 10, team1: "B", team2: "C", winner: null },
@@ -88,11 +82,17 @@ export default function App() {
 
   const [teamsPlayers, setTeamsPlayers] = useState({
     A: ["", ""],
+    A1: ["", ""],
     B: ["", ""],
+    B1: ["", ""],
     C: ["", ""],
+    C1: ["", ""],
     D: ["", ""],
+    D1: ["", ""],
     E: ["", ""],
+    E1: ["", ""],
     F: ["", ""],
+    F1: ["", ""],
   });
 
   const handlePlayersChange = (team, index, value) => {
@@ -134,9 +134,8 @@ export default function App() {
   };
 
   const getPlayerNames = (team) => {
-    const mainTeam = team.replace("1", "");
-    const players = teamsPlayers[mainTeam];
-    return players.filter(Boolean).join(" + ") || mainTeam;
+    const players = teamsPlayers[team];
+    return players.filter(Boolean).join(" + ") || team;
   };
 
   const getTeamColor = (team) => (team.includes("1") ? "#34d399" : "#3b82f6");
@@ -149,7 +148,7 @@ export default function App() {
 
       <main style={{ textAlign: "center", padding: "1rem" }}>
         <h3>Įveskite žaidėjų vardus komandoms</h3>
-        {["A", "B", "C", "D", "E", "F"].map((team) => (
+        {Object.keys(teamsPlayers).map((team) => (
           <div key={team} style={{ margin: "0.5rem" }}>
             <label>
               Komanda {team}:{" "}
@@ -238,11 +237,4 @@ export default function App() {
         <button
           className="button"
           onClick={nextRound}
-          style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}
-        >
-          Pereiti į kitą round
-        </button>
-      </main>
-    </div>
-  );
-}
+          style={{ marginTop: "1rem", padding: "0.5rem 
