@@ -1,235 +1,186 @@
 import React, { useState } from "react";
 import "./index.css";
 
-const initialRoundsData = [
-  // Panašiai kaip ankstesnis kodas, visi 10 roundų su team1/team2
-  { round: 1, team1: "A", team2: "B", winner: null },
-  { round: 1, team1: "A1", team2: "B1", winner: null },
-  { round: 1, team1: "C", team2: "D", winner: null },
-  { round: 1, team1: "C1", team2: "D1", winner: null },
-  { round: 1, team1: "E", team2: "F", winner: null },
-  { round: 1, team1: "E1", team2: "F1", winner: null },
-  // ROUND 2
-  { round: 2, team1: "A", team2: "C", winner: null },
-  { round: 2, team1: "A1", team2: "C1", winner: null },
-  { round: 2, team1: "B", team2: "E", winner: null },
-  { round: 2, team1: "B1", team2: "E1", winner: null },
-  { round: 2, team1: "D", team2: "F", winner: null },
-  { round: 2, team1: "D1", team2: "F1", winner: null },
-  // ROUND 3
-  { round: 3, team1: "A", team2: "D", winner: null },
-  { round: 3, team1: "A1", team2: "D1", winner: null },
-  { round: 3, team1: "B", team2: "F", winner: null },
-  { round: 3, team1: "B1", team2: "F1", winner: null },
-  { round: 3, team1: "C", team2: "E", winner: null },
-  { round: 3, team1: "C1", team2: "E1", winner: null },
-  // ROUND 4
-  { round: 4, team1: "A", team2: "E", winner: null },
-  { round: 4, team1: "A1", team2: "E1", winner: null },
-  { round: 4, team1: "B", team2: "D", winner: null },
-  { round: 4, team1: "B1", team2: "D1", winner: null },
-  { round: 4, team1: "C", team2: "F", winner: null },
-  { round: 4, team1: "C1", team2: "F1", winner: null },
-  // ROUND 5
-  { round: 5, team1: "A", team2: "F", winner: null },
-  { round: 5, team1: "A1", team2: "F1", winner: null },
-  { round: 5, team1: "B", team2: "C", winner: null },
-  { round: 5, team1: "B1", team2: "C1", winner: null },
-  { round: 5, team1: "D", team2: "E", winner: null },
-  { round: 5, team1: "D1", team2: "E1", winner: null },
-  // ROUND 6
-  { round: 6, team1: "A", team2: "B", winner: null },
-  { round: 6, team1: "A1", team2: "B1", winner: null },
-  { round: 6, team1: "C", team2: "D", winner: null },
-  { round: 6, team1: "C1", team2: "D1", winner: null },
-  { round: 6, team1: "E", team2: "F", winner: null },
-  { round: 6, team1: "E1", team2: "F1", winner: null },
-  // ROUND 7
-  { round: 7, team1: "A", team2: "C", winner: null },
-  { round: 7, team1: "A1", team2: "C1", winner: null },
-  { round: 7, team1: "B", team2: "E", winner: null },
-  { round: 7, team1: "B1", team2: "E1", winner: null },
-  { round: 7, team1: "D", team2: "F", winner: null },
-  { round: 7, team1: "D1", team2: "F1", winner: null },
-  // ROUND 8
-  { round: 8, team1: "A", team2: "D", winner: null },
-  { round: 8, team1: "A1", team2: "D1", winner: null },
-  { round: 8, team1: "B", team2: "F", winner: null },
-  { round: 8, team1: "B1", team2: "F1", winner: null },
-  { round: 8, team1: "C", team2: "E", winner: null },
-  { round: 8, team1: "C1", team2: "E1", winner: null },
-  // ROUND 9
-  { round: 9, team1: "A", team2: "E", winner: null },
-  { round: 9, team1: "A1", team2: "E1", winner: null },
-  { round: 9, team1: "B", team2: "D", winner: null },
-  { round: 9, team1: "B1", team2: "D1", winner: null },
-  { round: 9, team1: "C", team2: "F", winner: null },
-  { round: 9, team1: "C1", team2: "F1", winner: null },
-  // ROUND 10
-  { round: 10, team1: "A", team2: "F", winner: null },
-  { round: 10, team1: "A1", team2: "F1", winner: null },
-  { round: 10, team1: "B", team2: "C", winner: null },
-  { round: 10, team1: "B1", team2: "C1", winner: null },
-  { round: 10, team1: "D", team2: "E", winner: null },
-  { round: 10, team1: "D1", team2: "E1", winner: null },
-];
+function App() {
+  const teamsList = ["A", "A1", "B", "B1", "C", "C1", "D", "D1"];
+  const [players, setPlayers] = useState(
+    teamsList.reduce((acc, team) => {
+      acc[team] = { vyras: "", moteris: "" };
+      return acc;
+    }, {})
+  );
+  const [results, setResults] = useState({});
+  const [showNextRounds, setShowNextRounds] = useState(false);
+  const [finalResults, setFinalResults] = useState(null);
 
-export default function App() {
-  const [rounds, setRounds] = useState(initialRoundsData);
-  const [currentRound, setCurrentRound] = useState(1);
-  const [pointsTable, setPointsTable] = useState({});
-  const [champion, setChampion] = useState(null);
+  const rounds = [
+    ["A", "A1", "B", "B1"],
+    ["C", "C1", "D", "D1"],
+    ["A", "B", "C", "D"],
+    ["A1", "B1", "C1", "D1"],
+    ["A", "C1", "B", "D1"],
+    ["A", "B", "A1", "B1"],
+    ["C", "D", "C1", "D1"],
+    ["A", "C", "A1", "C1"],
+    ["B", "D", "B1", "D1"],
+    ["A", "D1", "B", "C1"],
+  ];
 
-  const [teamsPlayers, setTeamsPlayers] = useState({
-    A: ["", ""], A1: ["", ""],
-    B: ["", ""], B1: ["", ""],
-    C: ["", ""], C1: ["", ""],
-    D: ["", ""], D1: ["", ""],
-    E: ["", ""], E1: ["", ""],
-    F: ["", ""], F1: ["", ""],
-  });
-
-  const handlePlayersChange = (team, index, value) => {
-    const newTeam = [...teamsPlayers[team]];
-    newTeam[index] = value;
-    setTeamsPlayers({ ...teamsPlayers, [team]: newTeam });
+  const handlePlayerChange = (team, gender, value) => {
+    setPlayers((prev) => ({
+      ...prev,
+      [team]: { ...prev[team], [gender]: value },
+    }));
   };
 
-  const roundsToShow = rounds.filter((r) => r.round === currentRound);
-
-  const handleWinner = (index, winner) => {
-    const newRounds = [...rounds];
-    const globalIndex = rounds.indexOf(roundsToShow[index]);
-    newRounds[globalIndex].winner = winner;
-    setRounds(newRounds);
+  const handleResult = (roundIndex, matchIndex, winner) => {
+    setResults((prev) => ({
+      ...prev,
+      [roundIndex]: {
+        ...prev[roundIndex],
+        [matchIndex]: winner,
+      },
+    }));
   };
 
-  const nextRound = () => {
-    if (currentRound < 10) setCurrentRound(currentRound + 1);
-    else alert("Tai paskutinis roundas!");
-  };
+  const calculateResults = () => {
+    let scoreMap = {};
 
-  const calculateChampion = () => {
-    const points = {};
-    rounds.forEach((r) => {
-      if (r.winner) {
-        const team = r.winner.replace("1", "");
-        points[team] = (points[team] || 0) + 1;
-      }
+    // sujungiam visus taskus
+    Object.values(results).forEach((round) => {
+      Object.values(round).forEach((winner) => {
+        if (winner) {
+          scoreMap[winner] = (scoreMap[winner] || 0) + 5;
+        }
+      });
     });
-    const sortedPoints = Object.fromEntries(
-      Object.entries(points).sort(([, a], [, b]) => b - a)
+
+    // sujungiam vyrų/moterų taškus, jei reikia
+    const combined = {};
+    for (let team of teamsList) {
+      const base = team.replace("1", "");
+      combined[base] = (combined[base] || 0) + (scoreMap[team] || 0);
+    }
+
+    const sorted = Object.entries(combined).sort((a, b) => b[1] - a[1]);
+    setFinalResults(sorted);
+  };
+
+  const renderMatch = (roundIndex, t1, t2, matchIndex) => {
+    // nuo 6 roundo — vyrai atskirai (A/A1 → A), moterys (A/A1 → A1)
+    const maleRound = roundIndex >= 5;
+
+    const team1 =
+      maleRound && t1.endsWith("1") ? t1.slice(0, -1) : maleRound ? t1 : t1;
+    const team2 =
+      maleRound && t2.endsWith("1") ? t2.slice(0, -1) : maleRound ? t2 : t2;
+
+    const p1v = players[t1]?.vyras || "";
+    const p1m = players[t1]?.moteris || "";
+    const p2v = players[t2]?.vyras || "";
+    const p2m = players[t2]?.moteris || "";
+
+    let matchLabel;
+    if (maleRound) {
+      matchLabel = `${p1v || team1} vs ${p2v || team2}`;
+    } else {
+      matchLabel = `${p1v || team1} ${p1m ? "ir " + p1m : ""} – ${
+        p2v || team2
+      } ${p2m ? "ir " + p2m : ""}`;
+    }
+
+    return (
+      <div key={matchIndex} className="match-card">
+        <div className="match-label">{matchLabel}</div>
+        <div className="buttons">
+          <button
+            className={`btn ${results[roundIndex]?.[matchIndex] === t1 ? "win" : ""}`}
+            onClick={() => handleResult(roundIndex, matchIndex, t1)}
+          >
+            Laimėjo {t1}
+          </button>
+          <button
+            className={`btn ${results[roundIndex]?.[matchIndex] === t2 ? "win" : ""}`}
+            onClick={() => handleResult(roundIndex, matchIndex, t2)}
+          >
+            Laimėjo {t2}
+          </button>
+        </div>
+      </div>
     );
-    setPointsTable(sortedPoints);
-    const [first] = Object.keys(sortedPoints);
-    setChampion(first);
   };
-
-  const getPlayerNames = (team) => {
-    const players = teamsPlayers[team];
-    return players.filter(Boolean).join(" + ") || team;
-  };
-
-  const getTeamColor = (team) => (team.includes("1") ? "#34d399" : "#3b82f6");
 
   return (
-    <div style={{ fontFamily: "Arial, sans-serif" }}>
-      <header style={{ padding: "1rem", fontSize: "2rem", background: "#f3f4f6" }}>
-        Smarūna Padelis
-      </header>
+    <div className="container">
+      <h1>🎾 Smaruna Padelis</h1>
 
-      <main style={{ textAlign: "center", padding: "1rem" }}>
-        <h3>Įveskite žaidėjų vardus komandoms</h3>
-        {Object.keys(teamsPlayers).map((team) => (
-          <div key={team} style={{ margin: "0.5rem" }}>
-            <label>
-              Komanda {team}:{" "}
-              <input
-                type="text"
-                placeholder="Žaidėjas1"
-                value={teamsPlayers[team][0]}
-                onChange={(e) => handlePlayersChange(team, 0, e.target.value)}
-              />{" "}
-              /{" "}
-              <input
-                type="text"
-                placeholder="Žaidėjas2"
-                value={teamsPlayers[team][1]}
-                onChange={(e) => handlePlayersChange(team, 1, e.target.value)}
-              />
-            </label>
+      <div className="teams-section">
+        <h2>Komandos</h2>
+        {teamsList.map((team) => (
+          <div key={team} className="team-card">
+            <h3>Komanda {team}</h3>
+            <input
+              type="text"
+              placeholder="Vyras"
+              value={players[team].vyras}
+              onChange={(e) => handlePlayerChange(team, "vyras", e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Moteris"
+              value={players[team].moteris}
+              onChange={(e) =>
+                handlePlayerChange(team, "moteris", e.target.value)
+              }
+            />
           </div>
         ))}
+      </div>
 
-        <button
-          onClick={calculateChampion}
-          style={{ margin: "1rem", padding: "0.5rem 1rem" }}
-        >
-          Skaičiuoti nugalėtoją
+      <h2>Round'ai</h2>
+      {rounds.slice(0, showNextRounds ? 10 : 5).map((round, i) => (
+        <div key={i} className="round-card">
+          <h3>{i + 1} Roundas</h3>
+          {renderMatch(i, round[0], round[1], 0)}
+          {renderMatch(i, round[2], round[3], 1)}
+        </div>
+      ))}
+
+      {!showNextRounds && (
+        <button className="btn next" onClick={() => setShowNextRounds(true)}>
+          ➡️ Pereiti į kitus roundus
         </button>
+      )}
 
-        {champion && <h2>Nugalėtojas: {champion}</h2>}
+      <button className="btn calc" onClick={calculateResults}>
+        🏆 Skaičiuoti taškus
+      </button>
 
-        {Object.keys(pointsTable).length > 0 && (
-          <>
-            <h3>Taškų lentelė (rikiuota nuo daugiausiai taškų)</h3>
-            <table style={{ margin: "0 auto", borderCollapse: "collapse", minWidth: "200px" }}>
-              <thead>
-                <tr>
-                  <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>Komanda</th>
-                  <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>Taškai</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(pointsTable).map(([team, points], index) => (
-                  <tr key={team}>
-                    <td style={{ border: "1px solid #ddd", padding: "0.5rem" }}>{team}</td>
-                    <td style={{ border: "1px solid #ddd", padding: "0.5rem" }}>{points}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </>
-        )}
-
-        <h2>Round {currentRound}</h2>
-        <table style={{ margin: "0 auto", borderCollapse: "collapse", minWidth: "300px" }}>
-          <thead>
-            <tr>
-              <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>Komanda 1</th>
-              <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>Komanda 2</th>
-              <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>Winner</th>
-              <th style={{ border: "1px solid #ddd", padding: "0.5rem" }}>Veiksmai</th>
-            </tr>
-          </thead>
-          <tbody>
-            {roundsToShow.map((r, i) => (
-              <tr key={i}>
-                <td style={{ border: "1px solid #ddd", padding: "0.5rem", color: getTeamColor(r.team1), fontWeight: 600 }}>
-                  {getPlayerNames(r.team1)}
-                </td>
-                <td style={{ border: "1px solid #ddd", padding: "0.5rem", color: getTeamColor(r.team2), fontWeight: 600 }}>
-                  {getPlayerNames(r.team2)}
-                </td>
-                <td style={{ border: "1px solid #ddd", padding: "0.5rem" }}>
-                  {r.winner ? getPlayerNames(r.winner) : "-"}
-                </td>
-                <td style={{ border: "1px solid #ddd", padding: "0.5rem" }}>
-                  <button onClick={() => handleWinner(i, r.team1)}>Laimėjo</button>{" "}
-                  <button onClick={() => handleWinner(i, r.team2)}>Laimėjo</button>
-                </td>
+      {finalResults && (
+        <div className="results-card">
+          <h3>🏅 Galutiniai rezultatai</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Vieta</th>
+                <th>Komanda</th>
+                <th>Taškai</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <button
-          onClick={nextRound}
-          style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}
-        >
-          Pereiti į kitą round
-        </button>
-      </main>
+            </thead>
+            <tbody>
+              {finalResults.map(([team, points], index) => (
+                <tr key={team}>
+                  <td>{index + 1}</td>
+                  <td>{team}</td>
+                  <td>{points}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
+
+export default App;
