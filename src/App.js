@@ -14,37 +14,13 @@ function App() {
     }, {});
   });
 
-  // results structure: { roundIndex: { matchIndex: winnerTeamString } }
   const [results, setResults] = useState(() => {
     const saved = localStorage.getItem("results");
     return saved ? JSON.parse(saved) : {};
   });
 
-  const [showNextRounds, setShowNextRounds] = useState(() => {
-    return localStorage.getItem("showNextRounds") === "true";
-  });
-
   const [finalResults, setFinalResults] = useState(null);
 
-  // 1–5 mixed rounds (as you specified)
-  const mixedRounds = [
-    // Round 1
-    [["A","B"],["A1","B1"],["C","D"],["C1","D1"],["E","F"],["E1","F1"]],
-    // Round 2
-    [["A","C"],["A1","C1"],["B","E"],["B1","E1"],["D","F"],["D1","F1"]],
-    // Round 3
-    [["A","D"],["A1","D1"],["B","F"],["B1","F1"],["C","E"],["C1","E1"]],
-    // Round 4
-    [["A","E"],["A1","E1"],["B","D"],["B1","D1"],["C","F"],["C1","F1"]],
-    // Round 5
-    [["A","F"],["A1","F1"],["B","C"],["B1","C1"],["D","E"],["D1","E1"]],
-  ];
-
-  // rounds 6-10 repeat same matchups but are gender-specific:
-  // for each pair [X,Y] we render either male (if X has no '1') or female (if X has '1')
-  const genderRounds = mixedRounds; // reuse structure
-
-  // persist changes automatically
   useEffect(() => {
     localStorage.setItem("players", JSON.stringify(players));
   }, [players]);
@@ -53,11 +29,6 @@ function App() {
     localStorage.setItem("results", JSON.stringify(results));
   }, [results]);
 
-  useEffect(() => {
-    localStorage.setItem("showNextRounds", showNextRounds);
-  }, [showNextRounds]);
-
-  // helpers to update players / results
   const handlePlayerChange = (team, gender, value) => {
     setPlayers(prev => ({ ...prev, [team]: { ...prev[team], [gender]: value } }));
   };
@@ -70,31 +41,25 @@ function App() {
     });
   };
 
-  // calculate final points: 1 point per win; then combine base teams (A + A1 -> A)
-  const calculateResults = () => {
-    const scoreMap = {}; // per team string (A, A1, etc.)
-    Object.keys(results).forEach(roundKey => {
-      const roundObj = results[roundKey] || {};
-      Object.values(roundObj).forEach(winner => {
-        if (winner) {
-          scoreMap[winner] = (scoreMap[winner] || 0) + 1; // 1 point per win
-        }
-      });
-    });
-
-    // combine A + A1 under base A, etc.
-    const combined = {};
-    teamsList.forEach(team => {
-      const base = team.replace("1","");
-      combined[base] = (combined[base] || 0) + (scoreMap[team] || 0);
-    });
-
-    // sort desc
-    const sorted = Object.entries(combined).sort((a,b) => b[1] - a[1]);
-    setFinalResults(sorted);
+  const resetTournament = () => {
+    localStorage.removeItem("players");
+    localStorage.removeItem("results");
+    window.location.reload();
   };
 
-  // render label for mixed match: show "Vyras + Moteris" for each team if present
+  // Tvarkaraštis 1–5 roundai (mišri pora)
+  const mixedRounds = [
+    [["A","B"],["A1","B1"],["C","D"],["C1","D1"],["E","F"],["E1","F1"]],
+    [["A","C"],["A1","C1"],["B","E"],["B1","E1"],["D","F"],["D1","F1"]],
+    [["A","D"],["A1","D1"],["B","F"],["B1","F1"],["C","E"],["C1","E1"]],
+    [["A","E"],["A1","E1"],["B","D"],["B1","D1"],["C","F"],["C1","F1"]],
+    [["A","F"],["A1","F1"],["B","C"],["B1","C1"],["D","E"],["D1","E1"]],
+  ];
+
+  // 6–10 roundai: vyrai ir moterys atskirai, bet tvarkaraštis tas pats
+  const genderRounds = mixedRounds;
+
+  // render mixed match label (vyras + moteris)
   const renderMixedLabel = (team1, team2) => {
     const t1 = players[team1] || { vyras: "", moteris: "" };
     const t2 = players[team2] || { vyras: "", moteris: "" };
@@ -103,52 +68,87 @@ function App() {
     return `${left}  —  ${right}`;
   };
 
-  // render label for gender match: if team name contains '1' it's the female pairing, else male
+  // render gender match label (vyrai kartu, moterys kartu)
   const renderGenderLabel = (team1, team2) => {
-    // team1 might be "A" or "A1"
-    const isFemale = team1.includes("1");
-    const left = isFemale ? (players[team1]?.moteris || team1) : (players[team1]?.vyras || team1);
-    const right = isFemale ? (players[team2]?.moteris || team2) : (players[team2]?.vyras || team2);
-    return `${left}  —  ${right}`;
+    // pirma pora vyrai
+    const t1vyras = players[team1.replace("1","")]?.vyras || team1.replace("1","");
+    const t2vyras = players[team2.replace("1","")]?.vyras || team2.replace("1","");
+    // antra pora moterys
+    const t1moteris = players[team1.replace("1","1")]?.moteris || team1.replace("1","1");
+    const t2moteris = players[team2.replace("1","1")]?.moteris || team2.replace("1","1");
+
+    return [
+      `${t1vyras} + ${players[team1]?.vyras ? t1vyras : ""} vs ${t2vyras} + ${players[team2]?.vyras ? t2vyras : ""}`,
+      `${players[team1]?.moteris ? t1moteris : ""} vs ${players[team2]?.moteris ? t2moteris : ""}`
+    ];
   };
 
-  // generic match renderer (works for mixed and gender rounds)
   const renderMatchCard = (roundIndex, pair, matchIndex, isGenderRound) => {
     const [t1, t2] = pair;
-    const label = isGenderRound ? renderGenderLabel(t1, t2) : renderMixedLabel(t1, t2);
-
-    const winnerRecorded = results[roundIndex] && results[roundIndex][matchIndex];
-
-    return (
-      <div className="match-card" key={`${roundIndex}-${matchIndex}-${t1}-${t2}`}>
-        <div className="match-label">{label}</div>
-        <div className="buttons">
-          <button
-            className={`btn ${winnerRecorded === t1 ? "win" : ""}`}
-            onClick={() => handleResult(roundIndex, matchIndex, t1)}
-            aria-pressed={winnerRecorded === t1}
-            title={`Pažymėti, kad laimėjo ${t1}`}
-          >
-            Laimėjo {t1}
-          </button>
-          <button
-            className={`btn ${winnerRecorded === t2 ? "win" : ""}`}
-            onClick={() => handleResult(roundIndex, matchIndex, t2)}
-            aria-pressed={winnerRecorded === t2}
-            title={`Pažymėti, kad laimėjo ${t2}`}
-          >
-            Laimėjo {t2}
-          </button>
+    if (!isGenderRound) {
+      const label = renderMixedLabel(t1,t2);
+      const winnerRecorded = results[roundIndex] && results[roundIndex][matchIndex];
+      return (
+        <div className="match-card" key={`${roundIndex}-${matchIndex}-${t1}-${t2}`}>
+          <div className="match-label">{label}</div>
+          <div className="buttons">
+            <button className={`btn ${winnerRecorded===t1?"win":""}`} onClick={()=>handleResult(roundIndex, matchIndex, t1)}>Laimėjo {t1}</button>
+            <button className={`btn ${winnerRecorded===t2?"win":""}`} onClick={()=>handleResult(roundIndex, matchIndex, t2)}>Laimėjo {t2}</button>
+          </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      // round 6–10
+      const maleTeam1 = t1.replace("1","");
+      const maleTeam2 = t2.replace("1","");
+      const femaleTeam1 = t1.includes("1") ? t1 : t1+"1";
+      const femaleTeam2 = t2.includes("1") ? t2 : t2+"1";
+
+      const maleLabel = [players[maleTeam1]?.vyras, players[maleTeam1==="A"? "A1":""]?.vyras].filter(Boolean).join(" + ") +
+                        "  —  " +
+                        [players[maleTeam2]?.vyras, players[maleTeam2==="B"? "B1":""]?.vyras].filter(Boolean).join(" + ");
+
+      const femaleLabel = [players[femaleTeam1]?.moteris, players[femaleTeam1==="A1"? "A":""].moteris].filter(Boolean).join(" + ") +
+                        "  —  " +
+                        [players[femaleTeam2]?.moteris, players[femaleTeam2==="B1"? "B":""].moteris].filter(Boolean).join(" + ");
+
+      return (
+        <div key={`${roundIndex}-${matchIndex}-${t1}-${t2}`}>
+          <div className="match-card">
+            <div className="match-label">Vyrai: {maleLabel}</div>
+            <div className="buttons">
+              <button className="btn" onClick={()=>handleResult(roundIndex, matchIndex, maleTeam1)}>Laimėjo {maleTeam1}</button>
+              <button className="btn" onClick={()=>handleResult(roundIndex, matchIndex, maleTeam2)}>Laimėjo {maleTeam2}</button>
+            </div>
+          </div>
+          <div className="match-card">
+            <div className="match-label">Moterys: {femaleLabel}</div>
+            <div className="buttons">
+              <button className="btn" onClick={()=>handleResult(roundIndex, matchIndex, femaleTeam1)}>Laimėjo {femaleTeam1}</button>
+              <button className="btn" onClick={()=>handleResult(roundIndex, matchIndex, femaleTeam2)}>Laimėjo {femaleTeam2}</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
   };
 
-  const resetTournament = () => {
-    localStorage.removeItem("players");
-    localStorage.removeItem("results");
-    localStorage.removeItem("showNextRounds");
-    window.location.reload();
+  const calculateResults = () => {
+    const scoreMap = {};
+    Object.keys(results).forEach(r=>{
+      const round = results[r];
+      Object.values(round).forEach(w=>{
+        if(w) scoreMap[w]=(scoreMap[w]||0)+1;
+      });
+    });
+    // sujungiam A + A1
+    const combined = {};
+    teamsList.forEach(team=>{
+      const base = team.replace("1","");
+      combined[base] = (combined[base]||0) + (scoreMap[team]||0);
+    });
+    const sorted = Object.entries(combined).sort((a,b)=>b[1]-a[1]);
+    setFinalResults(sorted);
   };
 
   return (
@@ -161,19 +161,11 @@ function App() {
       <section className="teams-section">
         <h2>Komandų žaidėjai (vyras / moteris)</h2>
         <div className="teams-grid">
-          {teamsList.map(team => (
+          {teamsList.map(team=>(
             <div className="team-card" key={team}>
               <div className="team-title">Komanda {team}</div>
-              <input
-                placeholder="Vyras"
-                value={players[team]?.vyras || ""}
-                onChange={e => handlePlayerChange(team, "vyras", e.target.value)}
-              />
-              <input
-                placeholder="Moteris"
-                value={players[team]?.moteris || ""}
-                onChange={e => handlePlayerChange(team, "moteris", e.target.value)}
-              />
+              <input placeholder="Vyras" value={players[team]?.vyras||""} onChange={e=>handlePlayerChange(team,"vyras",e.target.value)}/>
+              <input placeholder="Moteris" value={players[team]?.moteris||""} onChange={e=>handlePlayerChange(team,"moteris",e.target.value)}/>
             </div>
           ))}
         </div>
@@ -182,37 +174,23 @@ function App() {
       <section className="rounds-section">
         <h2>Tvarkaraštis — visi round'ai</h2>
 
-        {/* Round 1–5: mixed */}
-        {mixedRounds.map((roundPairs, rIdx) => {
-          const roundNumber = rIdx + 1;
-          return (
-            <div className="round-card" key={`mixed-${rIdx}`}>
-              <h3>{roundNumber} roundas (Mišrūs)</h3>
-              {roundPairs.map((pair, mIdx) => renderMatchCard(rIdx, pair, mIdx, false))}
-            </div>
-          );
-        })}
+        {mixedRounds.map((pairs,rIdx)=>(
+          <div className="round-card" key={`mixed-${rIdx}`}>
+            <h3>{rIdx+1} roundas (Mišrūs)</h3>
+            {pairs.map((pair,mIdx)=>renderMatchCard(rIdx,pair,mIdx,false))}
+          </div>
+        ))}
 
-        {/* Round 6–10: gender rounds (6 maps to mixedRounds[0] etc.) */}
-        {genderRounds.map((roundPairs, idx) => {
-          const roundNumber = idx + 6;
-          return (
-            <div className="round-card" key={`gender-${idx}`}>
-              <h3>{roundNumber} roundas (Vyrai / Moteris)</h3>
-              {roundPairs.map((pair, mIdx) =>
-                // roundIndex should be 5..9 for rounds 6..10
-                renderMatchCard(idx + 5, pair, mIdx, true)
-              )}
-            </div>
-          );
-        })}
+        {genderRounds.map((pairs,idx)=>(
+          <div className="round-card" key={`gender-${idx}`}>
+            <h3>{idx+6} roundas (Vyrai / Moteris)</h3>
+            {pairs.map((pair,mIdx)=>renderMatchCard(idx+5,pair,mIdx,true))}
+          </div>
+        ))}
       </section>
 
       <div className="controls">
         <button className="btn primary" onClick={calculateResults}>🏆 Skaičiuoti rezultatus</button>
-        <button className="btn" onClick={() => setShowNextRounds(!showNextRounds)}>
-          {showNextRounds ? "Slėpti vėlesnius round'us" : "Rodyti visus round'us"}
-        </button>
         <button className="btn danger" onClick={resetTournament}>🔄 Pradėti naują turnyrą</button>
       </div>
 
@@ -228,8 +206,8 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {finalResults.map(([team, pts], i) => (
-                <tr key={team} className={i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : ""}>
+              {finalResults.map(([team, pts], i)=>(
+                <tr key={team} className={i===0?"gold":i===1?"silver":i===2?"bronze":""}>
                   <td>{i+1}</td>
                   <td>{team}</td>
                   <td>{pts}</td>
