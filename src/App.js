@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "./index.css";
 
-const baseTeams = ["A","B","C","D","E","F"];
+const teams = ["A","B","C","D","E","F"];
 
-const mixedRounds = [
+const rounds = [
   [["A","B"],["A1","B1"],["C","D"],["C1","D1"],["E","F"],["E1","F1"]],
   [["A","C"],["A1","C1"],["B","E"],["B1","E1"],["D","F"],["D1","F1"]],
   [["A","D"],["A1","D1"],["B","F"],["B1","F1"],["C","E"],["C1","E1"]],
@@ -12,76 +12,73 @@ const mixedRounds = [
 ];
 
 export default function App() {
-  const [players,setPlayers] = useState(()=>{
+  const [players, setPlayers] = useState(() => {
     const saved = localStorage.getItem("players");
-    if(saved) return JSON.parse(saved);
+    if (saved) return JSON.parse(saved);
     const p = {};
-    baseTeams.forEach(t=>{
-      p[t]={vyras:"",moteris:""};
-      p[t+"1"]={vyras:"",moteris:""};
+    teams.forEach(t => {
+      p[t] = {vyras:"", moteris:""};
+      p[t+"1"] = {vyras:"", moteris:""};
     });
     return p;
   });
 
-  const [results,setResults] = useState(()=>{
+  const [results, setResults] = useState(() => {
     const saved = localStorage.getItem("results");
     return saved ? JSON.parse(saved) : {};
   });
 
   const [finalResults,setFinalResults] = useState(null);
 
-  useEffect(()=>{ localStorage.setItem("players",JSON.stringify(players)) },[players]);
-  useEffect(()=>{ localStorage.setItem("results",JSON.stringify(results)) },[results]);
+  useEffect(()=>{localStorage.setItem("players",JSON.stringify(players))},[players]);
+  useEffect(()=>{localStorage.setItem("results",JSON.stringify(results))},[results]);
 
-  const handlePlayerChange = (team,gender,value)=>{
-    setPlayers(prev=>({...prev,[team]:{...prev[team],[gender]:value}}));
-  }
+  const handlePlayerChange = (team, gender, value) => {
+    setPlayers(prev => ({...prev,[team]:{...prev[team],[gender]:value}}));
+  };
 
-  const handleResult = (round,match,winner)=>{
-    setResults(prev=>{
+  const handleResult = (round, match, winner) => {
+    setResults(prev => {
       const next = {...prev};
       if(!next[round]) next[round]={};
       next[round][match]=winner;
       return next;
     });
-  }
+  };
 
-  const resetTournament = ()=>{
+  const resetTournament = () => {
     localStorage.removeItem("players");
     localStorage.removeItem("results");
     window.location.reload();
-  }
+  };
 
-  const renderMixedLabel = (t1,t2)=>{
+  const renderMixedLabel = (t1,t2) => {
     const p1 = [players[t1].vyras, players[t1].moteris].filter(Boolean).join(" + ");
     const p2 = [players[t2].vyras, players[t2].moteris].filter(Boolean).join(" + ");
     return `${p1 || t1} — ${p2 || t2}`;
-  }
+  };
 
-  const renderGenderLabel = (t1,t2)=>{
+  const renderGenderLabel = (t1,t2) => {
     const male1 = [players[t1].vyras, players[t1+"1"].vyras].filter(Boolean).join(" + ") || t1;
     const male2 = [players[t2].vyras, players[t2+"1"].vyras].filter(Boolean).join(" + ") || t2;
     const female1 = [players[t1].moteris, players[t1+"1"].moteris].filter(Boolean).join(" + ") || t1;
     const female2 = [players[t2].moteris, players[t2+"1"].moteris].filter(Boolean).join(" + ") || t2;
-    return [
-      `Vyrai: ${male1} vs ${male2}`,
-      `Moterys: ${female1} vs ${female2}`
-    ];
-  }
+    return [`Vyrai: ${male1} vs ${male2}`, `Moterys: ${female1} vs ${female2}`];
+  };
 
-  const renderMatchCard = (roundIndex,pair,matchIndex,isGender)=>{
+  const renderMatchCard = (roundIndex, pair, matchIndex, isGender) => {
     if(!isGender){
-      const label = renderMixedLabel(pair[0],pair[1]);
+      const label = renderMixedLabel(pair[0], pair[1]);
       const winnerRecorded = results[roundIndex]?.[matchIndex];
       return (
         <div key={`${roundIndex}-${matchIndex}`} className="match-card">
           <div>{label}</div>
           <div className="buttons">
-            <button className={winnerRecorded===pair[0]?"win":""} onClick={()=>handleResult(roundIndex,matchIndex,pair[0])}>{pair[0]}</button>
-            <button className={winnerRecorded===pair[1]?"win":""} onClick={()=>handleResult(roundIndex,matchIndex,pair[1])}>{pair[1]}</button>
+            <button className={winnerRecorded===pair[0]?"win":""} onClick={()=>handleResult(roundIndex, matchIndex, pair[0])}>{pair[0]}</button>
+            <button className={winnerRecorded===pair[1]?"win":""} onClick={()=>handleResult(roundIndex, matchIndex, pair[1])}>{pair[1]}</button>
           </div>
         </div>
-      )
+      );
     } else {
       const [maleLabel,femaleLabel] = renderGenderLabel(pair[0],pair[1]);
       const mWinner = results[roundIndex]?.[matchIndex+"m"];
@@ -103,17 +100,17 @@ export default function App() {
             </div>
           </div>
         </div>
-      )
+      );
     }
-  }
+  };
 
-  const calculateResults = ()=>{
+  const calculateResults = () => {
     const scoreMap = {};
-    Object.values(results).forEach(round=>{
-      Object.values(round).forEach(w=>{
+    Object.values(results).forEach(round => {
+      Object.values(round).forEach(w => {
         if(!w) return;
-        scoreMap[w]=(scoreMap[w]||0)+1;
-      })
+        scoreMap[w] = (scoreMap[w]||0)+1;
+      });
     });
     const combined = {};
     Object.keys(players).forEach(team=>{
@@ -122,11 +119,12 @@ export default function App() {
     });
     const sorted = Object.entries(combined).sort((a,b)=>b[1]-a[1]);
     setFinalResults(sorted);
-  }
+  };
 
   return (
     <div className="container">
       <h1>Smarūna Padelis</h1>
+
       <section className="teams">
         <h2>Žaidėjai</h2>
         <div className="teams-grid">
@@ -142,15 +140,15 @@ export default function App() {
 
       <section className="rounds">
         <h2>Tvarkaraštis</h2>
-        {mixedRounds.map((r,i)=>(
+        {rounds.map((r,i)=>(
           <div key={i} className="round-card">
             <h3>{i+1} roundas (Mišrūs)</h3>
             {r.map((pair,mIdx)=>renderMatchCard(i,pair,mIdx,false))}
           </div>
         ))}
-        {mixedRounds.map((r,i)=>(
+        {rounds.map((r,i)=>(
           <div key={i+5} className="round-card">
-            <h3>{i+6} roundas (Vyrai / Moteris)</h3>
+            <h3>{i+6} roundas (Vyrai/Moteris)</h3>
             {r.map((pair,mIdx)=>renderMatchCard(i+5,pair,mIdx,true))}
           </div>
         ))}
@@ -181,5 +179,5 @@ export default function App() {
         </section>
       )}
     </div>
-  )
+  );
 }
