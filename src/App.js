@@ -103,20 +103,28 @@ function App() {
     return `${left}  —  ${right}`;
   };
 
- // render label for gender match: shows both males and both females in one match
-const renderGenderLabel = (team1, team2) => {
-  // Vyrai: team + team1
-  const male1 = [players[team1]?.vyras, players[team1+"1"]?.vyras].filter(Boolean).join(" + ") || team1;
-  const male2 = [players[team2]?.vyras, players[team2+"1"]?.vyras].filter(Boolean).join(" + ") || team2;
+ const renderGenderLabel = (team1, team2) => {
+  // nustatom, ar tai moterų round (jei team1 turi "1", bet čia tik pagrindinė logika)
+  const isFemaleRound = team1.includes("1");
 
-  // Moterys: team + team1
-  const female1 = [players[team1]?.moteris, players[team1+"1"]?.moteris].filter(Boolean).join(" + ") || team1+"1";
-  const female2 = [players[team2]?.moteris, players[team2+"1"]?.moteris].filter(Boolean).join(" + ") || team2+"1";
+  // pagal bazinę komandą randame abu žaidėjus
+  const getTeamPlayers = (baseTeam) => {
+    const tBase = players[baseTeam] || { vyras: "", moteris: "" };
+    const t1 = players[baseTeam + "1"] || { vyras: "", moteris: "" };
 
-  return [
-    `Vyrai: ${male1}  vs  ${male2}`,
-    `Moterys: ${female1}  vs  ${female2}`
-  ];
+    if (isFemaleRound) {
+      // rodome tik moteris
+      return [tBase.moteris, t1.moteris].filter(Boolean).join(" + ") || baseTeam;
+    } else {
+      // rodome tik vyrus
+      return [tBase.vyras, t1.vyras].filter(Boolean).join(" + ") || baseTeam;
+    }
+  };
+
+  const left = getTeamPlayers(team1.replace("1",""));
+  const right = getTeamPlayers(team2.replace("1",""));
+
+  return `${left} — ${right}`;
 };
 
   // generic match renderer (works for mixed and gender rounds)
