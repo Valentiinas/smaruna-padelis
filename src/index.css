@@ -34,7 +34,7 @@ h3 {
   color: #555;
 }
 
-/* Žaidėjų įvedimo kortelės */
+/* Žaidėjų kortelės */
 .teams-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -87,6 +87,7 @@ h3 {
 .buttons {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .buttons button {
@@ -170,4 +171,11 @@ button.danger:hover {
 
 .results tr:hover {
   background-color: #e3f2fd;
+}
+
+/* Vyrai / Moterys kortelių blokai */
+.gender-round {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
