@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
 import "./index.css";
 
+// Komandų pavadinimai
 const baseTeams = ["A","B","C","D","E","F"];
 
-// Tvarkaraštis 5 roundai
-const roundsOrder = [
-  [["A","B"],["C","D"],["E","F"]],
-  [["A","C"],["B","E"],["D","F"]],
-  [["A","D"],["B","F"],["C","E"]],
-  [["A","E"],["B","D"],["C","F"]],
-  [["A","F"],["B","C"],["D","E"]],
+// Tvarkaraštis – 5 mix roundai (6 poros)
+const mixedRounds = [
+  [["A","B"],["A1","B1"],["C","D"],["C1","D1"],["E","F"],["E1","F1"]],
+  [["A","C"],["A1","C1"],["B","E"],["B1","E1"],["D","F"],["D1","F1"]],
+  [["A","D"],["A1","D1"],["B","F"],["B1","F1"],["C","E"],["C1","E1"]],
+  [["A","E"],["A1","E1"],["B","D"],["B1","D1"],["C","F"],["C1","F1"]],
+  [["A","F"],["A1","F1"],["B","C"],["B1","C1"],["D","E"],["D1","E1"]],
 ];
 
 export default function App() {
-  // Komandų žaidėjai
+  // Žaidėjai
   const [players,setPlayers] = useState(()=>{
     const saved = localStorage.getItem("players");
     if(saved) return JSON.parse(saved);
@@ -61,8 +62,10 @@ export default function App() {
   }
 
   const renderGenderLabel = (t1,t2)=>{
+    // Vyrai: abu iš A + A1 prieš B + B1
     const male1 = [players[t1].vyras, players[t1+"1"].vyras].filter(Boolean).join(" + ") || t1;
     const male2 = [players[t2].vyras, players[t2+"1"].vyras].filter(Boolean).join(" + ") || t2;
+    // Moterys: abu iš A + A1 prieš B + B1
     const female1 = [players[t1].moteris, players[t1+"1"].moteris].filter(Boolean).join(" + ") || t1;
     const female2 = [players[t2].moteris, players[t2+"1"].moteris].filter(Boolean).join(" + ") || t2;
     return [
@@ -144,13 +147,13 @@ export default function App() {
 
       <section className="rounds">
         <h2>Tvarkaraštis</h2>
-        {roundsOrder.map((r,i)=>(
+        {mixedRounds.map((r,i)=>(
           <div key={i} className="round-card">
             <h3>{i+1} roundas (Mišrūs)</h3>
             {r.map((pair,mIdx)=>renderMatchCard(i,pair,mIdx,false))}
           </div>
         ))}
-        {roundsOrder.map((r,i)=>(
+        {mixedRounds.map((r,i)=>(
           <div key={i+5} className="round-card">
             <h3>{i+6} roundas (Vyrai / Moteris)</h3>
             {r.map((pair,mIdx)=>renderMatchCard(i+5,pair,mIdx,true))}
