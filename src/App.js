@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./index.css";
 
-// Komandų pavadinimai
 const baseTeams = ["A","B","C","D","E","F"];
 
-// Tvarkaraštis – 5 mix roundai (6 poros)
 const mixedRounds = [
   [["A","B"],["A1","B1"],["C","D"],["C1","D1"],["E","F"],["E1","F1"]],
   [["A","C"],["A1","C1"],["B","E"],["B1","E1"],["D","F"],["D1","F1"]],
@@ -14,7 +12,6 @@ const mixedRounds = [
 ];
 
 export default function App() {
-  // Žaidėjai
   const [players,setPlayers] = useState(()=>{
     const saved = localStorage.getItem("players");
     if(saved) return JSON.parse(saved);
@@ -62,10 +59,8 @@ export default function App() {
   }
 
   const renderGenderLabel = (t1,t2)=>{
-    // Vyrai: abu iš A + A1 prieš B + B1
     const male1 = [players[t1].vyras, players[t1+"1"].vyras].filter(Boolean).join(" + ") || t1;
     const male2 = [players[t2].vyras, players[t2+"1"].vyras].filter(Boolean).join(" + ") || t2;
-    // Moterys: abu iš A + A1 prieš B + B1
     const female1 = [players[t1].moteris, players[t1+"1"].moteris].filter(Boolean).join(" + ") || t1;
     const female2 = [players[t2].moteris, players[t2+"1"].moteris].filter(Boolean).join(" + ") || t2;
     return [
