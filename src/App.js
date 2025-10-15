@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./index.css";
 
 function App() {
-  const teamsList = ["A", "A1", "B", "B1", "C", "C1", "D", "D1"];
+  const teamsList = ["A", "A1", "B", "B1", "C", "C1", "D", "D1", "E", "E1", "F", "F1"];
   const [players, setPlayers] = useState(
     teamsList.reduce((acc, team) => {
       acc[team] = { vyras: "", moteris: "" };
@@ -13,18 +13,17 @@ function App() {
   const [showNextRounds, setShowNextRounds] = useState(false);
   const [finalResults, setFinalResults] = useState(null);
 
-  const rounds = [
-    ["A", "A1", "B", "B1"],
-    ["C", "C1", "D", "D1"],
-    ["A", "B", "C", "D"],
-    ["A1", "B1", "C1", "D1"],
-    ["A", "C1", "B", "D1"],
-    ["A", "B", "A1", "B1"],
-    ["C", "D", "C1", "D1"],
-    ["A", "C", "A1", "C1"],
-    ["B", "D", "B1", "D1"],
-    ["A", "D1", "B", "C1"],
+  // ✅ 5 roundai mišrūs + 5 roundai vyrai/moterys atskirai
+  const mixedRounds = [
+    [["A", "B"], ["A1", "B1"], ["C", "D"], ["C1", "D1"], ["E", "F"], ["E1", "F1"]],
+    [["A", "C"], ["A1", "C1"], ["B", "E"], ["B1", "E1"], ["D", "F"], ["D1", "F1"]],
+    [["A", "D"], ["A1", "D1"], ["B", "F"], ["B1", "F1"], ["C", "E"], ["C1", "E1"]],
+    [["A", "E"], ["A1", "E1"], ["B", "D"], ["B1", "D1"], ["C", "F"], ["C1", "F1"]],
+    [["A", "F"], ["A1", "F1"], ["B", "C"], ["B1", "C1"], ["D", "E"], ["D1", "E1"]],
   ];
+
+  // nuo 6 roundo — vyrai prieš vyrus, moterys prieš moteris
+  const genderRounds = mixedRounds;
 
   const handlePlayerChange = (team, gender, value) => {
     setPlayers((prev) => ({
@@ -46,7 +45,6 @@ function App() {
   const calculateResults = () => {
     let scoreMap = {};
 
-    // sujungiam visus taskus
     Object.values(results).forEach((round) => {
       Object.values(round).forEach((winner) => {
         if (winner) {
@@ -55,7 +53,7 @@ function App() {
       });
     });
 
-    // sujungiam vyrų/moterų taškus, jei reikia
+    // sujungti vyru/moteru taskus
     const combined = {};
     for (let team of teamsList) {
       const base = team.replace("1", "");
@@ -66,44 +64,46 @@ function App() {
     setFinalResults(sorted);
   };
 
-  const renderMatch = (roundIndex, t1, t2, matchIndex) => {
-    // nuo 6 roundo — vyrai atskirai (A/A1 → A), moterys (A/A1 → A1)
-    const maleRound = roundIndex >= 5;
+  const renderMatch = (roundIndex, team1, team2, matchIndex, isGenderRound) => {
+    let label = "";
 
-    const team1 =
-      maleRound && t1.endsWith("1") ? t1.slice(0, -1) : maleRound ? t1 : t1;
-    const team2 =
-      maleRound && t2.endsWith("1") ? t2.slice(0, -1) : maleRound ? t2 : t2;
-
-    const p1v = players[t1]?.vyras || "";
-    const p1m = players[t1]?.moteris || "";
-    const p2v = players[t2]?.vyras || "";
-    const p2m = players[t2]?.moteris || "";
-
-    let matchLabel;
-    if (maleRound) {
-      matchLabel = `${p1v || team1} vs ${p2v || team2}`;
+    if (isGenderRound) {
+      // 6-10 roundas – atskirai vyrai/moterys
+      label = (
+        <>
+          <div className="match-label">
+            👨 {players[team1]?.vyras || team1} vs {players[team2]?.vyras || team2}
+          </div>
+          <div className="match-label">
+            👩 {players[team1 + "1"]?.moteris || team1 + "1"} vs{" "}
+            {players[team2 + "1"]?.moteris || team2 + "1"}
+          </div>
+        </>
+      );
     } else {
-      matchLabel = `${p1v || team1} ${p1m ? "ir " + p1m : ""} – ${
-        p2v || team2
-      } ${p2m ? "ir " + p2m : ""}`;
+      label = (
+        <div className="match-label">
+          {players[team1]?.vyras || team1} {players[team1]?.moteris ? "ir " + players[team1]?.moteris : ""} –{" "}
+          {players[team2]?.vyras || team2} {players[team2]?.moteris ? "ir " + players[team2]?.moteris : ""}
+        </div>
+      );
     }
 
     return (
       <div key={matchIndex} className="match-card">
-        <div className="match-label">{matchLabel}</div>
+        {label}
         <div className="buttons">
           <button
-            className={`btn ${results[roundIndex]?.[matchIndex] === t1 ? "win" : ""}`}
-            onClick={() => handleResult(roundIndex, matchIndex, t1)}
+            className={`btn ${results[roundIndex]?.[matchIndex] === team1 ? "win" : ""}`}
+            onClick={() => handleResult(roundIndex, matchIndex, team1)}
           >
-            Laimėjo {t1}
+            Laimėjo {team1}
           </button>
           <button
-            className={`btn ${results[roundIndex]?.[matchIndex] === t2 ? "win" : ""}`}
-            onClick={() => handleResult(roundIndex, matchIndex, t2)}
+            className={`btn ${results[roundIndex]?.[matchIndex] === team2 ? "win" : ""}`}
+            onClick={() => handleResult(roundIndex, matchIndex, team2)}
           >
-            Laimėjo {t2}
+            Laimėjo {team2}
           </button>
         </div>
       </div>
@@ -129,22 +129,30 @@ function App() {
               type="text"
               placeholder="Moteris"
               value={players[team].moteris}
-              onChange={(e) =>
-                handlePlayerChange(team, "moteris", e.target.value)
-              }
+              onChange={(e) => handlePlayerChange(team, "moteris", e.target.value)}
             />
           </div>
         ))}
       </div>
 
       <h2>Round'ai</h2>
-      {rounds.slice(0, showNextRounds ? 10 : 5).map((round, i) => (
+
+      {/* 1–5 */}
+      {mixedRounds.map((round, i) => (
         <div key={i} className="round-card">
           <h3>{i + 1} Roundas</h3>
-          {renderMatch(i, round[0], round[1], 0)}
-          {renderMatch(i, round[2], round[3], 1)}
+          {round.map(([team1, team2], idx) => renderMatch(i, team1, team2, idx, false))}
         </div>
       ))}
+
+      {/* 6–10 */}
+      {showNextRounds &&
+        genderRounds.map((round, i) => (
+          <div key={i + 5} className="round-card">
+            <h3>{i + 6} Roundas (Vyrai / Moterys)</h3>
+            {round.map(([team1, team2], idx) => renderMatch(i + 5, team1, team2, idx, true))}
+          </div>
+        ))}
 
       {!showNextRounds && (
         <button className="btn next" onClick={() => setShowNextRounds(true)}>
@@ -169,7 +177,7 @@ function App() {
             </thead>
             <tbody>
               {finalResults.map(([team, points], index) => (
-                <tr key={team}>
+                <tr key={team} className={index === 0 ? "gold" : index === 1 ? "silver" : index === 2 ? "bronze" : ""}>
                   <td>{index + 1}</td>
                   <td>{team}</td>
                   <td>{points}</td>

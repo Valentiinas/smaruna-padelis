@@ -1,13 +1,13 @@
 body {
-  font-family: "Inter", sans-serif;
-  background: #f9fafb;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(180deg, #f7faff 0%, #eef2ff 100%);
   color: #222;
   margin: 0;
   padding: 0;
 }
 
 .container {
-  max-width: 900px;
+  max-width: 1100px;
   margin: auto;
   padding: 30px;
 }
@@ -15,12 +15,12 @@ body {
 h1 {
   text-align: center;
   color: #0b5ed7;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 
 .teams-section {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 15px;
 }
 
@@ -28,24 +28,29 @@ h1 {
   background: white;
   padding: 15px;
   border-radius: 12px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.team-card h3 {
+  color: #0b5ed7;
+  margin-bottom: 10px;
 }
 
 .team-card input {
   display: block;
   width: 100%;
-  margin-top: 8px;
+  margin-top: 5px;
   padding: 8px;
   border-radius: 6px;
   border: 1px solid #ddd;
 }
 
 .round-card {
-  background: #fff;
-  margin-top: 20px;
+  background: white;
+  margin-top: 25px;
   border-radius: 12px;
   padding: 15px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .match-card {
@@ -54,12 +59,12 @@ h1 {
 
 .match-label {
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .buttons {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 .btn {
@@ -74,7 +79,7 @@ h1 {
 }
 
 .btn:hover {
-  background: #d0e0ff;
+  background: #cfe2ff;
 }
 
 .btn.win {
@@ -82,7 +87,8 @@ h1 {
   color: white;
 }
 
-.btn.calc, .btn.next {
+.btn.calc,
+.btn.next {
   display: block;
   margin: 25px auto;
   padding: 12px 20px;
@@ -95,7 +101,7 @@ h1 {
   margin-top: 25px;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .results-card table {
@@ -104,7 +110,20 @@ h1 {
   text-align: center;
 }
 
-.results-card th, .results-card td {
+.results-card th,
+.results-card td {
   padding: 10px;
   border-bottom: 1px solid #eee;
+}
+
+.gold {
+  background: #fff9c4;
+}
+
+.silver {
+  background: #e0e0e0;
+}
+
+.bronze {
+  background: #ffcc80;
 }
