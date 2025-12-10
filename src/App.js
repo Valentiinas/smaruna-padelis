@@ -1,242 +1,201 @@
 import React, { useState } from "react";
-import "./index.css";
 
-export default function App() {
-  const [mode, setMode] = useState(null); // null, "4", "6"
+// ---- 4 COURT ROUNDS ----
+const baseMixedRounds4 = [
+  [["A", "D"], ["B", "C"]],
+  [["A", "C"], ["B", "D"]],
+  [["A", "B"], ["C", "D"]],
+  [["A", "B"], ["C", "D"]],
+  [["A", "C"], ["B", "D"]],
+  [["A", "D"], ["B", "C"]],
+  [["A", "B"], ["C", "D"]],
+  [["A", "C"], ["B", "D"]]
+];
+
+// ---- 6 COURT ROUNDS ----
+const baseMixedRounds6 = [
+  [["A", "F"], ["B", "E"], ["C", "D"]],
+  [["A", "E"], ["B", "D"], ["C", "F"]],
+  [["A", "D"], ["B", "C"], ["E", "F"]],
+  [["A", "C"], ["B", "F"], ["D", "E"]],
+  [["A", "B"], ["C", "E"], ["D", "F"]],
+  [["A", "B"], ["C", "D"], ["E", "F"]],
+  [["A", "C"], ["B", "D"], ["E", "F"]],
+  [["A", "D"], ["B", "E"], ["C", "F"]]
+];
+
+function App() {
+  const [mode, setMode] = useState(null);
 
   if (!mode) {
     return (
-      <div className="container select-mode">
-        <h1>Pasirink turnyro tipą</h1>
-        <button className="btn primary" onClick={() => setMode("4")}>
-          4 kortų · 16 žmonių
-        </button>
-        <button className="btn primary" onClick={() => setMode("6")}>
-          6 kortų · 24 žmonės
-        </button>
+      <div style={{ padding: 20 }}>
+        <h2>Pasirink kortų skaičių</h2>
+        <button onClick={() => setMode(4)} style={{ marginRight: 10 }}>4 kortos</button>
+        <button onClick={() => setMode(6)}>6 kortos</button>
       </div>
     );
   }
 
-  const teamsList =
-    mode === "6"
-      ? [
-          "A",
-          "A1",
-          "B",
-          "B1",
-          "C",
-          "C1",
-          "D",
-          "D1",
-          "E",
-          "E1",
-          "F",
-          "F1",
-        ]
-      : ["A", "A1", "B", "B1", "C", "C1", "D", "D1"]; // 4 courts → 8 teams → 16 players
+  // Now that mode is selected, teamsList can be used safely
+  const teamsList = mode === 4 ? ["A", "B", "C", "D"] : ["A", "B", "C", "D", "E", "F"];
 
   const [players, setPlayers] = useState(() => {
-    const obj = {};
-    teamsList.forEach((t) => (obj[t] = { vyras: "", moteris: "" }));
-    return obj;
+    const initial = {};
+    teamsList.forEach(t => (initial[t] = ""));
+    return initial;
   });
 
   const [results, setResults] = useState({});
-  const [finalResults, setFinalResults] = useState(null);
 
-  // FULL MIXED ROUNDS
-  const baseMixedRounds = [
-    [
-      ["A", "B"],
-      ["A1", "B1"],
-      ["C", "D"],
-      ["C1", "D1"],
-      ["E", "F"],
-      ["E1", "F1"],
-    ],
-    [
-      ["A", "C"],
-      ["A1", "C1"],
-      ["B", "E"],
-      ["B1", "E1"],
-      ["D", "F"],
-      ["D1", "F1"],
-    ],
-    [
-      ["A", "D"],
-      ["A1", "D1"],
-      ["B", "F"],
-      ["B1", "F1"],
-      ["C", "E"],
-      ["C1", "E1"],
-    ],
-    [
-      ["A", "E"],
-      ["A1", "E1"],
-      ["B", "D"],
-      ["B1", "D1"],
-      ["C", "F"],
-      ["C1", "F1"],
-    ],
-    [
-      ["A", "F"],
-      ["A1", "F1"],
-      ["B", "C"],
-      ["B1", "C1"],
-      ["D", "E"],
-      ["D1", "E1"],
-    ],
-  ];
-
-  // Trim to 4 courts
-  const mixedRounds = mode === "6" ? baseMixedRounds : baseMixedRounds.map((r) => r.slice(0, 4));
+  const mixedRounds = mode === 4 ? baseMixedRounds4 : baseMixedRounds6;
   const genderRounds = mixedRounds;
+  const fullRounds = [...mixedRounds, ...genderRounds];
 
-  const handlePlayerChange = (team, gender, value) => {
-    setPlayers((prev) => ({ ...prev, [team]: { ...prev[team], [gender]: value } }));
-  };
-
-  const handleResult = (roundIndex, matchIndex, winnerTeam) => {
-    setResults((prev) => {
-      return {
-        ...prev,
-        [roundIndex]: { ...(prev[roundIndex] || {}), [matchIndex]: winnerTeam },
-      };
-    });
-  };
-
-  const calculateResults = () => {
-    const scoreMap = {};
-
-    Object.values(results).forEach((round) => {
-      Object.values(round).forEach((w) => {
-        if (w) scoreMap[w] = (scoreMap[w] || 0) + 1;
-      });
-    });
-
-    const combined = {};
-    teamsList.forEach((team) => {
-      const base = team.replace("1", "");
-      combined[base] = (combined[base] || 0) + (scoreMap[team] || 0);
-    });
-
-    const sorted = Object.entries(combined).sort((a, b) => b[1] - a[1]);
-    setFinalResults(sorted);
-  };
-
-  const renderMixedLabel = (t1, t2) => {
-    const L = [players[t1].vyras, players[t1].moteris].filter(Boolean).join(" + ") || t1;
-    const R = [players[t2].vyras, players[t2].moteris].filter(Boolean).join(" + ") || t2;
-    return `${L} — ${R}`;
-  };
-
-  const renderGenderLabel = (t1, t2) => {
-    const female = t1.includes("1");
-    const base = (x) => x.replace("1", "");
-    const gp = (b) => {
-      const p = players[b];
-      const p1 = players[b + "1"];
-      return female
-        ? [p.moteris, p1.moteris].filter(Boolean).join(" + ") || b
-        : [p.vyras, p1.vyras].filter(Boolean).join(" + ") || b;
-    };
-    return `${gp(base(t1))} — ${gp(base(t2))}`;
-  };
-
-  const renderMatchCard = (roundIndex, pair, matchIndex, isGender) => {
-    const [t1, t2] = pair;
-    const lbl = isGender ? renderGenderLabel(t1, t2) : renderMixedLabel(t1, t2);
-    const winner = results[roundIndex]?.[matchIndex];
-
-    return (
-      <div className="match-card" key={`${roundIndex}-${matchIndex}`}>
-        <div className="match-label">{lbl}</div>
-        <div className="buttons">
-          <button
-            className={`btn ${winner === t1 ? "win" : ""}`}
-            onClick={() => handleResult(roundIndex, matchIndex, t1)}
-          >
-            Laimėjo {t1}
-          </button>
-          <button
-            className={`btn ${winner === t2 ? "win" : ""}`}
-            onClick={() => handleResult(roundIndex, matchIndex, t2)}
-          >
-            Laimėjo {t2}
-          </button>
-        </div>
-      </div>
-    );
+  const updateResult = (roundIdx, pairIdx, winner) => {
+    setResults(prev => ({ ...prev, [`r${roundIdx}p${pairIdx}`]: winner }));
   };
 
   return (
-    <div className="container">
-      <header>
-        <h1>Smarūna Padelis — {mode === "4" ? "4 kortų" : "6 kortų"} turnyras</h1>
-      </header>
+    <div style={{ padding: 20 }}>
+      <h2>{mode} kortų turnyras</h2>
 
-      <section className="teams-section">
-        <h2>Komandų žaidėjai</h2>
-        <div className="teams-grid">
-          {teamsList.map((t) => (
-            <div className="team-card" key={t}>
-              <div className="team-title">Komanda {t}</div>
-              <input
-                placeholder="Vyras"
-                value={players[t].vyras}
-                onChange={(e) => handlePlayerChange(t, "vyras", e.target.value)}
-              />
-              <input
-                placeholder="Moteris"
-                value={players[t].moteris}
-                onChange={(e) => handlePlayerChange(t, "moteris", e.target.value)}
-              />
+      <h3>Žaidėjai</h3>
+      {teamsList.map(t => (
+        <div key={t}>
+          {t}: <input value={players[t]} onChange={e => setPlayers({ ...players, [t]: e.target.value })} />
+        </div>
+      ))}
+
+      <h3>Tvarkaraštis</h3>
+      {fullRounds.map((round, r) => (
+        <div key={r} style={{ marginBottom: 20 }}>
+          <h4>{r < mixedRounds.length ? `Mixed Round ${r + 1}` : `Gender Round ${r - mixedRounds.length + 1}`}</h4>
+          {round.map((pair, p) => (
+            <div key={p} style={{ marginBottom: 10 }}>
+              {pair[0]} ({players[pair[0]]}) - {pair[1]} ({players[pair[1]]})
+              <select
+                value={results[`r${r}p${p}`] || ""}
+                onChange={e => updateResult(r, p, e.target.value)}
+                style={{ marginLeft: 10 }}
+              >
+                <option value="">—</option>
+                <option value={pair[0]}>{pair[0]}</option>
+                <option value={pair[1]}>{pair[1]}</option>
+              </select>
             </div>
           ))}
         </div>
-      </section>
+      ))}
 
-      <section className="rounds-section">
-        <h2>Round'ai</h2>
-
-        {mixedRounds.map((rp, rIdx) => (
-          <div className="round-card" key={`m-${rIdx}`}>
-            <h3>{rIdx + 1} roundas (Mišrūs)</h3>
-            {rp.map((p, mIdx) => renderMatchCard(rIdx, p, mIdx, false))}
-          </div>
+      <h3>Rezultatai</h3>
+      <ul>
+        {Object.keys(results).map(k => (
+          <li key={k}>{k}: {results[k]}</li>
         ))}
-
-        {genderRounds.map((rp, idx) => (
-          <div className="round-card" key={`g-${idx}`}>
-            <h3>{idx + mixedRounds.length + 1} roundas (Vyrai / Moterys)</h3>
-            {rp.map((p, mIdx) => renderMatchCard(idx + mixedRounds.length, p, mIdx, true))}
-          </div>
-        ))}
-      </section>
-
-      <div className="controls">
-        <button className="btn primary" onClick={calculateResults}>
-          Skaičiuoti rezultatus
-        </button>
-      </div>
-
-      {finalResults && (
-        <section className="results-card">
-          <h2>Galutinė lentelė</h2>
-          <table>
-            <tbody>
-              {finalResults.map(([t, pts], i) => (
-                <tr key={t}>
-                  <td>{i + 1}</td>
-                  <td>{t}</td>
-                  <td>{pts}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      )}
+      </ul>
     </div>
   );
 }
+
+export default App;import React, { useState } from "react";
+
+// ---- 4 COURT ROUNDS ----
+const baseMixedRounds4 = [
+  [["A", "D"], ["B", "C"]],
+  [["A", "C"], ["B", "D"]],
+  [["A", "B"], ["C", "D"]],
+  [["A", "B"], ["C", "D"]],
+  [["A", "C"], ["B", "D"]],
+  [["A", "D"], ["B", "C"]],
+  [["A", "B"], ["C", "D"]],
+  [["A", "C"], ["B", "D"]]
+];
+
+// ---- 6 COURT ROUNDS ----
+const baseMixedRounds6 = [
+  [["A", "F"], ["B", "E"], ["C", "D"]],
+  [["A", "E"], ["B", "D"], ["C", "F"]],
+  [["A", "D"], ["B", "C"], ["E", "F"]],
+  [["A", "C"], ["B", "F"], ["D", "E"]],
+  [["A", "B"], ["C", "E"], ["D", "F"]],
+  [["A", "B"], ["C", "D"], ["E", "F"]],
+  [["A", "C"], ["B", "D"], ["E", "F"]],
+  [["A", "D"], ["B", "E"], ["C", "F"]]
+];
+
+function App() {
+  const [mode, setMode] = useState(null);
+
+  if (!mode) {
+    return (
+      <div style={{ padding: 20 }}>
+        <h2>Pasirink kortų skaičių</h2>
+        <button onClick={() => setMode(4)} style={{ marginRight: 10 }}>4 kortos</button>
+        <button onClick={() => setMode(6)}>6 kortos</button>
+      </div>
+    );
+  }
+
+  // Now that mode is selected, teamsList can be used safely
+  const teamsList = mode === 4 ? ["A", "B", "C", "D"] : ["A", "B", "C", "D", "E", "F"];
+
+  const [players, setPlayers] = useState(() => {
+    const initial = {};
+    teamsList.forEach(t => (initial[t] = ""));
+    return initial;
+  });
+
+  const [results, setResults] = useState({});
+
+  const mixedRounds = mode === 4 ? baseMixedRounds4 : baseMixedRounds6;
+  const genderRounds = mixedRounds;
+  const fullRounds = [...mixedRounds, ...genderRounds];
+
+  const updateResult = (roundIdx, pairIdx, winner) => {
+    setResults(prev => ({ ...prev, [`r${roundIdx}p${pairIdx}`]: winner }));
+  };
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h2>{mode} kortų turnyras</h2>
+
+      <h3>Žaidėjai</h3>
+      {teamsList.map(t => (
+        <div key={t}>
+          {t}: <input value={players[t]} onChange={e => setPlayers({ ...players, [t]: e.target.value })} />
+        </div>
+      ))}
+
+      <h3>Tvarkaraštis</h3>
+      {fullRounds.map((round, r) => (
+        <div key={r} style={{ marginBottom: 20 }}>
+          <h4>{r < mixedRounds.length ? `Mixed Round ${r + 1}` : `Gender Round ${r - mixedRounds.length + 1}`}</h4>
+          {round.map((pair, p) => (
+            <div key={p} style={{ marginBottom: 10 }}>
+              {pair[0]} ({players[pair[0]]}) - {pair[1]} ({players[pair[1]]})
+              <select
+                value={results[`r${r}p${p}`] || ""}
+                onChange={e => updateResult(r, p, e.target.value)}
+                style={{ marginLeft: 10 }}
+              >
+                <option value="">—</option>
+                <option value={pair[0]}>{pair[0]}</option>
+                <option value={pair[1]}>{pair[1]}</option>
+              </select>
+            </div>
+          ))}
+        </div>
+      ))}
+
+      <h3>Rezultatai</h3>
+      <ul>
+        {Object.keys(results).map(k => (
+          <li key={k}>{k}: {results[k]}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
